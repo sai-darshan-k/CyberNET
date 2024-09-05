@@ -13,7 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/sign up'  # Your database name
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/sign up'  # Corrected URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv("SECRET_KEY", "your_secret_key")
 db = SQLAlchemy(app)
@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Load the language model
 groqllm = ChatGroq(model="llama3-8b-8192", temperature=0)
-prompt = """(system: You are a cyber security assistant specialized only with cyber security amd ethical hacking. If the user's question is related to cyber secutity, vulnerabilities, netwok security, ethical hacking concepts provide a detailed and helpful response. If the question is not related to cyber security and related, respond with "I'm sorry, I can only assist with Cyber Security queries.)
+prompt = """(system: You are a cyber security assistant specialized only with cyber security and ethical hacking. If the user's question is related to cyber security, vulnerabilities, network security, ethical hacking concepts provide a detailed and helpful response. If the question is not related to cyber security and related, respond with "I'm sorry, I can only assist with Cyber Security queries.)
 (user: Question: {question})"""
 promptinstance = ChatPromptTemplate.from_template(prompt)
 
@@ -48,7 +48,7 @@ def login():
         
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id  # Store user ID in session
-            flash('', 'success')
+            flash('Logged in successfully!', 'success')
             return redirect(url_for('cybercare')) 
         else:
             flash('Invalid email or password. Please try again.', 'danger')
@@ -57,17 +57,22 @@ def login():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        hashed_password = generate_password_hash(password)  # Hash the password
-        new_user = User(email=email, password=hashed_password)
-        
-        # Add the new user to the database
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Sign up successful! You can now log in.', 'success')
-        return redirect(url_for('login'))
+    try:
+        if request.method == 'POST':
+            email = request.form['email']
+            password = request.form['password']
+            hashed_password = generate_password_hash(password)  # Hash the password
+            new_user = User(email=email, password=hashed_password)
+            
+            # Add the new user to the database
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Sign up successful! You can now log in.', 'success')
+            return redirect(url_for('login'))
+
+    except Exception as e:
+        logging.error(f"Error during signup: {str(e)}")
+        flash('An error occurred during signup. Please try again.', 'danger')
 
     return render_template('signup.html')
 
@@ -77,7 +82,6 @@ def cybercare():
         flash('You need to log in to access this page.', 'danger')
         return redirect(url_for('login'))
     return render_template('cybercare.html')
-
 
 @app.route('/speech')
 def speech():
@@ -116,4 +120,3 @@ def logout():
     session.pop('user_id', None)  # Remove user from session
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
-
