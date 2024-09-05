@@ -1,0 +1,6 @@
+Flask==3.0.3
+langchain_groq
+dotenv
+flask_sqlalchemy
+langchain_core.output_parsers
+langchain_core.prompts
