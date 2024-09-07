@@ -13,7 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/sign up'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/sign_up'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv("SECRET_KEY", "your_secret_key")
 db = SQLAlchemy(app)
@@ -120,3 +120,8 @@ def logout():
     session.pop('user_id', None)  # Remove user from session
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create database tables
+    app.run(debug=True)
