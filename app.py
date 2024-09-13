@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, flash
+from flask import Flask, render_template, request, jsonify, flash, session
 from werkzeug.utils import secure_filename
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Load the language model
 groqllm = ChatGroq(model="llama3-8b-8192", temperature=0)
-prompt = """(system: You are a cyber security assistant specialized only with cyber security and ethical hacking. If the user's question is related to cyber security, vulnerabilities, network security, ethical hacking concepts provide a detailed and helpful response. If the question is not related to cyber security and related, respond with "I'm sorry, I can only assist with Cyber Security queries.")
+prompt = """(system: You are a cyber security assistant specialized only with cyber security and ethical hacking. If the user's question is related to cyber security, vulnerabilities, network security, ethical hacking concepts provide a detailed and helpful response. If the question is not related to cyber security and related, respond with "I'm sorry, I can only assist with Cyber Security queries.)
 (user: Question: {question})"""
 promptinstance = ChatPromptTemplate.from_template(prompt)
 
