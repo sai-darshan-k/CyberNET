@@ -59,9 +59,6 @@
         <div class="title">
             <h2>Ask Your Questions!!</h2>
         </div>
-        <div class="language-switcher">
-            <button id="lang-toggle">English</button>
-        </div>
     </header>
     <main>
         <div class="speech-input">
@@ -102,7 +99,6 @@
                 // Append the question to the bot response div
                 document.getElementById('botResponse').appendChild(questionDiv);
 
-                speakText(transcript); // Read the transcript aloud
                 submitQuestion(transcript); // Send the recognized text to the backend
             };
 
@@ -118,21 +114,6 @@
             recognition.start();
         }
 
-        function speakText(text) {
-            if (text) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.onend = function() {
-                    console.log('Speech finished.');
-                };
-                utterance.onerror = function(event) {
-                    console.error('Speech synthesis error:', event);
-                };
-                window.speechSynthesis.speak(utterance);
-            } else {
-                console.warn('No text to speak.');
-            }
-        }
-
         function submitQuestion(question) {
             $.ajax({
                 url: '/ask', // Replace with your backend URL
@@ -142,6 +123,7 @@
                 success: function(response) {
                     var answer = response.answer;
                     console.log('Answer:', answer);
+
                     // Create a div for the answer
                     const answerDiv = document.createElement('div');
                     answerDiv.classList.add('completion');
@@ -149,8 +131,6 @@
 
                     // Append the answer to the bot response div
                     document.getElementById('botResponse').appendChild(answerDiv);
-
-                    speakText(answer); // Read the answer aloud
                 },
                 error: function(error) {
                     console.error('Error:', error);
